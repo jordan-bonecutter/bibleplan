@@ -29,8 +29,11 @@ func main() {
     }
 
     Must(BadRequest(json.NewDecoder(r.Body).Decode(&request)))
-    log.Println(request.StartDay, request.StartDay.UnixMilli())
     start := float64(request.StartDay.UnixMilli())/1000
+    _, ok := calendar.MCheyne.On(request.StartDay)
+    if !ok {
+      panic(BadRequest(fmt.Errorf("Enter a day within the last year")))
+    }
     Try(db.Exec(`
       INSERT INTO subscribers(
         email, start_time
