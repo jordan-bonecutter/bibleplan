@@ -1,0 +1,8 @@
+github.com/BurntSushi/toml v1.4.0 h1:kuoIxZQy2WRRk1pttg9asf+WVv6tWQuBNVmK8+nqPr0=
+github.com/BurntSushi/toml v1.4.0/go.mod h1:ukJfTF/6rtPPRCnwkur4qwRxa8vTRFBF0uk2lLoLwho=
+github.com/mattn/go-sqlite3 v1.14.22 h1:2gZY6PC6kBnID23Tichd1K+Z0oS6nE/XwU+Vz/5o4kU=
+github.com/mattn/go-sqlite3 v1.14.22/go.mod h1:Uh1q+B4BYcTPb+yiD3kU8Ct7aC0hY9fxUwlHK0RXw+Y=
+github.com/workspace-9/erk v0.0.0-20240901213551-788b50b1dc67 h1:TSQPjNDB4d0j1tL/AR7kBhwQ0gTPtxOyS0GCBkfsU7M=
+github.com/workspace-9/erk v0.0.0-20240901213551-788b50b1dc67/go.mod h1:ANxoaQTXC7sCsojCxWKDaywa7O/5ZNWk/hzaEAm8lW8=
+github.com/workspace-9/ik v1.0.0 h1:1zO7KTFBsPnvwnReswTNSdJiPIBPW0vREyZeEyKeuW0=
+github.com/workspace-9/ik v1.0.0/go.mod h1:VlqjCbUsQ3+UmwxG14ab2gEtGak2nWhbl0CE0ztBVlM=
