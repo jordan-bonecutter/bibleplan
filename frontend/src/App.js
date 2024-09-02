@@ -2,17 +2,19 @@ import {
     Button,
     Form,
     Input,
+  DatePicker,
   Layout,
   message,
   Space,
   Typography
 } from 'antd';
 import { useState } from 'react';
+import dayjs from 'dayjs';
 
 const { Title, Paragraph, Text, Link } = Typography;
 
-const api = 'http://localhost:7771/api/v1/'
-//const api = 'https://bibleplan.jordanbonecutter.com/api/v1/plan'
+//const api = 'http://localhost:7771/api/v1/'
+const api = 'https://bibleplan.jordanbonecutter.com/api/v1'
 
 function App() {
   const [readings, setReadings] = useState([]);
@@ -40,10 +42,8 @@ function App() {
       .catch(err => message.error(`Failed siging up: ${err}`))
     }}>
       <Form.Item id="date" name="date" label="Date">
-        <Input type="date" onChange={(e) => {
-          const date = new Date(Date.parse(e.target.value))
-          console.log(date)
-          fetch(`${api}/reading?start=${date.toJSON()}`)
+        <DatePicker minDate={dayjs().year(dayjs().year()-1)} maxDate={dayjs()} onChange={(e) => {
+          fetch(`${api}/reading?start=${e.toDate().toJSON()}`)
             .then(r => r.json())
             .then(readings => setReadings(readings))
             .catch(console.log)
@@ -58,8 +58,11 @@ function App() {
       </Form.Item>
       </Space.Compact>
     </Form>
+    <>{readings.length === 0 ? <></> : <><br/><b>Today's Reading:</b><br/></>
+    }</>
     <>{readings.map(reading => <><span>{reading}</span><br/></>)
     }</>
+    <br/>
     <Paragraph>
     MY DEAR FLOCK , -- The approach of another year stirs up within me new desires for your
 salvation, and for the growth of those of you who are saved. "God is my record how
