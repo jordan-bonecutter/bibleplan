@@ -9,5 +9,5 @@ require (
 
 require (
 	github.com/BurntSushi/toml v1.4.0
-	github.com/workspace-9/erk v0.0.0-20240901213551-788b50b1dc67
+	github.com/workspace-9/erk v0.0.0-20240902070821-b20aae2a4b15
 )
