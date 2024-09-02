@@ -49,14 +49,12 @@ function App() {
             .catch(console.log)
         }}/>
       </Form.Item>
-      <Space.Compact>
       <Form.Item id="email" name="email" label="Email">
-        <Input type="email"/>
+        <Space.Compact>
+          <Input type="email"/>
+          <Button type="primary" htmlType="submit">Submit</Button>
+        </Space.Compact>
       </Form.Item>
-      <Form.Item>
-        <Button type="primary" htmlType="submit">Submit</Button>
-      </Form.Item>
-      </Space.Compact>
     </Form>
     <>{readings.length === 0 ? <></> : <><br/><b>Today's Reading:</b><br/></>
     }</>
