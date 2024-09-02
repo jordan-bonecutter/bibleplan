@@ -29,7 +29,6 @@ func main() {
   db := Try(sql.Open("sqlite3", "bibleplan.db"))
   now := float64(time.Now().UnixMilli())/1000.
   Must(loadConfig())
-  log.Println(config)
 
   for scan := range Sql(Try(db.Query(`
     SELECT email, start_time FROM subscribers;
