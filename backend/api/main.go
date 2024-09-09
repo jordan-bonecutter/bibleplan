@@ -29,6 +29,9 @@ func main() {
     }
 
     Must(BadRequest(json.NewDecoder(r.Body).Decode(&request)))
+    if request.Email == "" {
+      panic(BadRequest(fmt.Errorf("Email was empty")))
+    }
     start := float64(request.StartDay.UnixMilli())/1000
     _, ok := calendar.MCheyne.On(request.StartDay)
     if !ok {
