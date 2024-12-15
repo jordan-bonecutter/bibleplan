@@ -30,6 +30,7 @@ func main() {
   now := float64(time.Now().UnixMilli())/1000.
   Must(loadConfig())
 
+  toDelete := make([]string, 0)
   for scan := range Sql(Try(db.Query(`
     SELECT email, start_time FROM subscribers;
   `))) {
@@ -42,13 +43,17 @@ func main() {
       continue
     }
     if daysSinceSubscription >= 365 {
+	  toDelete = append(toDelete, email)
       Must(sendCongratsEmail(email))
-      Try(db.Exec(`
-        DELETE FROM subscribers WHERE email = $1;
-      `, email))
     } else {
       Must(sendDailyEmail(email, calendar.MCheyne[daysSinceSubscription]))
     }
+  }
+
+  for _, delEmail := range toDelete {
+    Try(db.Exec(`
+      DELETE FROM subscribers WHERE email = $1;
+    `, delEmail))
   }
 }
 
