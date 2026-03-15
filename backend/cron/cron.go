@@ -3,17 +3,21 @@ package main
 import (
 	"database/sql"
 	_ "embed"
-  "fmt"
+	"fmt"
+	"log"
+	"net/smtp"
+	"sync"
 	"time"
-  "log"
-  "net/smtp"
 
+	"git.jordanbonecutter.com/bibleplan/backend/calendar"
+	"github.com/BurntSushi/toml"
 	_ "github.com/mattn/go-sqlite3"
 	. "github.com/workspace-9/erk"
 	. "github.com/workspace-9/ik"
-  "git.jordanbonecutter.com/bibleplan/backend/calendar"
-  "github.com/BurntSushi/toml"
 )
+
+const EmailRetries = 5
+const EmailRetryDur = time.Minute
 
 //go:embed config.toml
 var configData string
@@ -30,6 +34,9 @@ func main() {
   now := float64(time.Now().UnixMilli())/1000.
   Must(loadConfig())
 
+  wg := sync.WaitGroup{}
+
+  deleteMu := sync.Mutex{}
   toDelete := make([]string, 0)
   for scan := range Sql(Try(db.Query(`
     SELECT email, start_time FROM subscribers;
@@ -37,24 +44,60 @@ func main() {
     var email string
     var startTime float64
     Must(scan(&email, &startTime))
-    daysSinceSubscription := int((now - startTime)/(3600*24))
-    log.Println(email, daysSinceSubscription)
-    if daysSinceSubscription < 0 {
-      continue
-    }
-    if daysSinceSubscription >= 365 {
-	  toDelete = append(toDelete, email)
-      Must(sendCongratsEmail(email))
-    } else {
-      Must(sendDailyEmail(email, calendar.MCheyne[daysSinceSubscription]))
-    }
+
+	wg.Go(func() {
+		doSubscriber(email, startTime, now, func() {
+			deleteMu.Lock()
+			defer deleteMu.Unlock()
+		    toDelete = append(toDelete, email)
+		})
+	})
   }
+
+  wg.Wait()
 
   for _, delEmail := range toDelete {
     Try(db.Exec(`
       DELETE FROM subscribers WHERE email = $1;
     `, delEmail))
   }
+}
+
+func doSubscriber(
+	email string,
+	startTime float64,
+	now float64,
+	onDelete func(),
+) error {
+    daysSinceSubscription := int((now - startTime)/(3600*24))
+    log.Println(email, daysSinceSubscription)
+    if daysSinceSubscription < 0 {
+	  return nil
+    }
+
+	var emailAction func() error
+    if daysSinceSubscription >= 365 {
+	  onDelete()
+	  emailAction = func() error {
+		return sendCongratsEmail(email)
+	  }
+    } else {
+	  emailAction = func() error {
+		  return sendDailyEmail(email, calendar.MCheyne[daysSinceSubscription])
+	  }
+    }
+
+	var err error
+	for range EmailRetries {
+		if err = emailAction(); err == nil {
+			return nil
+		}
+		log.Printf("failed sending email: %s\nRetrying in %v", err, EmailRetryDur)
+
+		time.Sleep(EmailRetryDur)
+	}
+
+	return err
 }
 
 func sendCongratsEmail(to string) error {
